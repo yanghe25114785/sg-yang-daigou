@@ -10,15 +10,5 @@ app.get('/products.json', async (req, res) => {
   // 抓取飞书表格页面内容
   const response = await fetch(url);
   const html = await response.text();
-
-  // 简单解析（这里需要根据飞书表格的结构提取数据）
-  // 假设你用正则或 DOM 解析，把表格数据转成 JSON
-  const data = [
-    { id: 1, name: '商品A', costPrice: 10, servicePrice: 5 },
-    { id: 2, name: '商品B', costPrice: 20, servicePrice: 8 }
-  ];
-
-  res.json(data);
-});
-
+  
 app.listen(3000, () => console.log('Server running on port 3000'));
