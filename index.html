@@ -335,26 +335,26 @@
 // ║  ★ 只需修改这里！★                              ║
 // ║  把下面的 URL 换成你自己的 Google 表格发布链接   ║
 // ╚══════════════════════════════════════════════════╝
-const SHEET_CSV_URL = 'https://docs.qq.com/sheet/DYVZxZENDT0VFRkNM?tab=BB08J2'
+    const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbHQiOiJmNWEwYTc5MmUyOGM0ZGVlODU2NGNkMmQ5Yjg3NDVkOSIsInR5cCI6MSwiZXhwIjoxNzc4Njg3MDQxLjk0MDk5MiwiaWF0IjoxNzc2MDk1MDQxLjk0MDk5Miwic3ViIjoiMzg1YWFkZDk3YzYyNDFhN2E3YjQ3NjQyYWM1ZGE1ZWQifQ.xkWIVWRTMBGSmtwpRz7HiTPQyh9Ez1hho34P3cbM4RM";  
+    const SHEET_ID = "DYVZxZENDT0VFRkNM";  
 
-    // 用 fetch 请求数据
-    fetch(SHEET_URL)
-      .then(res => res.text())
-      .then(data => {
-        // 简单处理：按行拆分
-        const rows = data.split("\n");
-        const list = document.getElementById("product-list");
+    fetch(`https://docs.qq.com/openapi/sheet/${SHEET_ID}/values`, {
+      headers: {
+        "Authorization": `Bearer ${TOKEN}`
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      const rows = data.values; // API 返回的二维数组
+      const list = document.getElementById("product-list");
 
-        for (let i = 1; i < rows.length; i++) {
-          const cols = rows[i].split(",");
-          if (cols.length > 1) {
-            const li = document.createElement("li");
-            li.textContent = `${cols[1]} - 成本价: ${cols[2]} 服务费: ${cols[3]}`;
-            list.appendChild(li);
-          }
-        }
-      })
-      .catch(err => console.error("读取失败:", err));
+      for (let i = 1; i < rows.length; i++) {
+        const li = document.createElement("li");
+        li.textContent = `${rows[i][1]} - 成本价: ${rows[i][2]} 服务费: ${rows[i][3]}`;
+        list.appendChild(li);
+      }
+    })
+    .catch(err => console.error("读取失败:", err));
   </script>
 </body>
 </html>
