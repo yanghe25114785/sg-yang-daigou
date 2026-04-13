@@ -335,14 +335,29 @@
 // ║  ★ 只需修改这里！★                              ║
 // ║  把下面的 URL 换成你自己的 Google 表格发布链接   ║
 // ╚══════════════════════════════════════════════════╝
-const SHEET_CSV_URL = 'https://github.com/yanghe25114785/sg-yang-daigou/blob/main/change.js'
+const SHEET_CSV_URL = 'https://docs.qq.com/sheet/DYVZxZENDT0VFRkNM?tab=BB08J2'
 
-fetch(SHEET_JSON_URL)
-  .then(res => res.json())
-  .then(data => {
-    // data 就是实时更新的商品数据
-    console.log(data);
-  });
+    // 用 fetch 请求数据
+    fetch(SHEET_URL)
+      .then(res => res.text())
+      .then(data => {
+        // 简单处理：按行拆分
+        const rows = data.split("\n");
+        const list = document.getElementById("product-list");
+
+        for (let i = 1; i < rows.length; i++) {
+          const cols = rows[i].split(",");
+          if (cols.length > 1) {
+            const li = document.createElement("li");
+            li.textContent = `${cols[1]} - 成本价: ${cols[2]} 服务费: ${cols[3]}`;
+            list.appendChild(li);
+          }
+        }
+      })
+      .catch(err => console.error("读取失败:", err));
+  </script>
+</body>
+</html>
 // 其他配置
 const CONFIG = {
   wechatId: '17610377858',  // ← 你的微信号
