@@ -661,7 +661,7 @@
 // ══════════════════════════════════════════
 //  ★ 填入你的 JSONbin 信息（只需设置一次）★
 // ══════════════════════════════════════════
-const JSONBIN_ID  = '69dd36ecaaba882197f5a1fd'    // ← 替换成你的 Bin ID
+const JSONBIN_ID  = '69dd3dafaaba882197f5c4c6'    // ← 替换成你的 Bin ID
 const JSONBIN_KEY = '$2a$10$3KW9TncOAiE9xMhxKQ8N0uVINZPjQGcnTpu1yhfIzuEELu93EF.uS'   // ← 替换成你的 API Key（只读也可以）
 
 // ══════════════════════════════════════════
@@ -684,7 +684,10 @@ let currentGoodForModal = null
 async function loadFromJsonbin() {
   try {
     const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`, {
-      headers: { 'X-Master-Key': JSONBIN_KEY }
+      headers: {
+        'X-Master-Key': JSONBIN_KEY,
+        'X-Access-Key': JSONBIN_KEY
+      }
     })
     if (!res.ok) throw new Error('fetch failed')
     const json = await res.json()
@@ -694,7 +697,7 @@ async function loadFromJsonbin() {
       CONFIG = { ...CONFIG, ...record.config }
     }
   } catch (e) {
-    console.warn('从 JSONbin 加载失败，使用本地数据', e)
+    console.warn('JSONbin 加载失败', e)
   }
 }
 
