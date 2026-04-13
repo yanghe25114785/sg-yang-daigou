@@ -29,11 +29,6 @@
 <script>
 let products = [];
 
-// ⚠️ 这里填你的信息（必须改！）
-const GITHUB_TOKEN = "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"; // GitHub Token
-const REPO = "yanghe25114785/sg-yang-daigou";
-const FILE_PATH = "data.json";
-
 function addProduct() {
   const product = {
     name: document.getElementById("name").value,
@@ -72,51 +67,26 @@ function clearInputs() {
   document.querySelectorAll("input").forEach(i => i.value = "");
 }
 
-// 🚀 自动提交到 GitHub
+// 🚀 新版本：通过后端接口上传
 async function pushToGitHub() {
-  if (!GITHUB_TOKEN || GITHUB_TOKEN === "YOUR_GITHUB_TOKEN") {
-    alert("请先填写 GitHub Token！");
-    return;
-  }
-
-  const url = `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`;
-
-  // 先获取原文件 sha
-  const getRes = await fetch(url, {
+  const res = await fetch("https://daigou-backend.yanghe25114785.workers.dev", {
+    method: "POST",
     headers: {
-      Authorization: `token ${GITHUB_TOKEN}`
-    }
-  });
-
-  let sha = null;
-  if (getRes.ok) {
-    const fileData = await getRes.json();
-    sha = fileData.sha;
-  }
-
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(products, null, 2))));
-
-  const res = await fetch(url, {
-    method: "PUT",
-    headers: {
-      Authorization: `token ${GITHUB_TOKEN}`,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      message: "update products",
-      content: content,
-      sha: sha
-    })
+    body: JSON.stringify(products)
   });
 
   if (res.ok) {
-    alert("✅ 上传成功！网站已自动更新！");
+    alert("✅ 上传成功！已同步到GitHub");
   } else {
-    const err = await res.json();
-    alert("❌ 上传失败: " + JSON.stringify(err));
+    const err = await res.text();
+    alert("❌ 上传失败: " + err);
   }
 }
 </script>
 
 </body>
 </html>
+
+
