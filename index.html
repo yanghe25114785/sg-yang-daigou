@@ -335,29 +335,7 @@
 // ║  ★ 只需修改这里！★                              ║
 // ║  把下面的 URL 换成你自己的 Google 表格发布链接   ║
 // ╚══════════════════════════════════════════════════╝
-    const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbHQiOiJmNWEwYTc5MmUyOGM0ZGVlODU2NGNkMmQ5Yjg3NDVkOSIsInR5cCI6MSwiZXhwIjoxNzc4Njg3MDQxLjk0MDk5MiwiaWF0IjoxNzc2MDk1MDQxLjk0MDk5Miwic3ViIjoiMzg1YWFkZDk3YzYyNDFhN2E3YjQ3NjQyYWM1ZGE1ZWQifQ.xkWIVWRTMBGSmtwpRz7HiTPQyh9Ez1hho34P3cbM4RM";  
-    const SHEET_ID = "DYVZxZENDT0VFRkNM";  
 
-    fetch(`https://docs.qq.com/openapi/sheet/${SHEET_ID}/values`, {
-      headers: {
-        "Authorization": `Bearer ${TOKEN}`
-      }
-    })
-    .then(res => res.json())
-    .then(data => {
-      const rows = data.values; // API 返回的二维数组
-      const list = document.getElementById("product-list");
-
-      for (let i = 1; i < rows.length; i++) {
-        const li = document.createElement("li");
-        li.textContent = `${rows[i][1]} - 成本价: ${rows[i][2]} 服务费: ${rows[i][3]}`;
-        list.appendChild(li);
-      }
-    })
-    .catch(err => console.error("读取失败:", err));
-  </script>
-</body>
-</html>
 // 其他配置
 const CONFIG = {
   wechatId: '17610377858',  // ← 你的微信号
@@ -385,56 +363,32 @@ window.onload = async () => {
 //  GOOGLE SHEETS → CSV 解析
 // ══════════════════════════════════════
 async function fetchGoods() {
-  if (!SHEET_CSV_URL || SHEET_CSV_URL === 'YOUR_GOOGLE_SHEET_CSV_URL_HERE') {
-    showSheetError()
-    return
-  }
   try {
-    const res = await fetch(SHEET_CSV_URL)
-    if (!res.ok) throw new Error('网络错误')
-    const csv = await res.text()
-    GOODS = parseCSV(csv)
+    const res = await fetch("data.json")
+    if (!res.ok) throw new Error("加载失败")
+
+    const data = await res.json()
+
+    GOODS = data.map((item, index) => ({
+      id: String(index + 1),
+      name: item.name,
+      series: item.series,
+      character: item.character,
+      shop: item.shop,
+      images: item.image ? item.image.split("|") : [],
+      costPrice: item.cost_price,
+      servicePrice: item.sell_price - item.cost_price,
+      inStock: item.status === "在售",
+      desc: "",
+      addedDate: new Date().toISOString()
+    }))
+
   } catch (e) {
-    showSheetError()
+    console.error(e)
+    document.getElementById('goods-grid').innerHTML = "❌ 数据加载失败"
   }
 }
 
-function parseCSV(csv) {
-  const lines = csv.trim().split('\n')
-  if (lines.length < 2) return []
-  // 跳过第一行表头
-  return lines.slice(1).map(line => {
-    const cols = parseCSVLine(line)
-    // 列顺序: id, name, series, character, shop, images, costPrice, servicePrice, inStock, desc, addedDate
-    const images = cols[5] ? cols[5].split('|').map(s => s.trim()).filter(Boolean) : []
-    return {
-      id:           cols[0] || '',
-      name:         cols[1] || '',
-      series:       cols[2] || '',
-      character:    cols[3] || '',
-      shop:         cols[4] || '',
-      images,
-      costPrice:    parseFloat(cols[6]) || 0,
-      servicePrice: parseFloat(cols[7]) || 0,
-      inStock:      (cols[8] || '').trim().toLowerCase() === 'true' || cols[8] === '是' || cols[8] === '1',
-      desc:         cols[9] || '',
-      addedDate:    cols[10] || '2024-01-01',
-    }
-  }).filter(g => g.id && g.name)
-}
-
-// 正确解析带引号逗号的 CSV 行
-function parseCSVLine(line) {
-  const result = []; let cur = ''; let inQ = false
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i]
-    if (c === '"') { inQ = !inQ }
-    else if (c === ',' && !inQ) { result.push(cur.trim()); cur = '' }
-    else { cur += c }
-  }
-  result.push(cur.trim())
-  return result
-}
 
 function showSheetError() {
   const errHtml = `
